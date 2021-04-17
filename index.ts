@@ -1,5 +1,6 @@
 require("dotenv").config();
 const dbAdmin = require('firebase-admin');
+dbAdmin.initializeApp();
 /**
  * Triggered from a message on a Cloud Pub/Sub topic.
  *
@@ -13,8 +14,6 @@ exports.UpdateStatus = async (event, context) => {
 
     let data = JSON.parse(message);
     if (!data.id) return "Error: no video id specified";
-
-    dbAdmin.initializeApp();
 
     let db = dbAdmin.firestore();
     let docRef = db.collection('videos').doc(data.id);

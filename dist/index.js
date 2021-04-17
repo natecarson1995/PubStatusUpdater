@@ -45,7 +45,7 @@ dbAdmin.initializeApp();
  * @param {!Object} context Metadata for the event.
  */
 exports.UpdateStatus = function (event, context) { return __awaiter(_this, void 0, void 0, function () {
-    var message, data, db, docRef;
+    var message, data, db, docRef, now, existingDoc;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -57,15 +57,21 @@ exports.UpdateStatus = function (event, context) { return __awaiter(_this, void 
                     return [2 /*return*/, "Error: no video id specified"];
                 db = dbAdmin.firestore();
                 docRef = db.collection('videos').doc(data.id);
+                now = Date.now();
+                return [4 /*yield*/, docRef.get()];
+            case 1:
+                existingDoc = _a.sent();
+                if (!(!existingDoc.exists || (existingDoc.exists && existingDoc.data()["last-accessed"] < now))) return [3 /*break*/, 3];
                 return [4 /*yield*/, docRef.set({
                         "id": data.id,
                         "last-status": data.status,
                         "data": data.data,
-                        "last-accessed": Date.now()
+                        "last-accessed": now
                     })];
-            case 1:
+            case 2:
                 _a.sent();
-                return [2 /*return*/];
+                _a.label = 3;
+            case 3: return [2 /*return*/];
         }
     });
 }); };

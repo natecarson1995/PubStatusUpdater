@@ -17,13 +17,17 @@ exports.UpdateStatus = async (event, context) => {
 
     let db = dbAdmin.firestore();
     let docRef = db.collection('videos').doc(data.id);
+    let now = Date.now();
 
-    await docRef.set({
-        "id": data.id,
-        "last-status": data.status,
-        "data": data.data,
-        "last-accessed": Date.now()
-    });
+    let existingDoc = await docRef.get();
+    if (!existingDoc.exists || (existingDoc.exists && existingDoc.data()["last-accessed"] < now)) {
+        await docRef.set({
+            "id": data.id,
+            "last-status": data.status,
+            "data": data.data,
+            "last-accessed": now
+        });
+    }
     return;
 }
 

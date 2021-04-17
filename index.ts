@@ -20,17 +20,35 @@ exports.UpdateStatus = async (event, context) => {
     let now = Date.now();
 
     let existingDoc = await docRef.get();
-    if (!existingDoc.exists || (existingDoc.exists && existingDoc.data()["last-accessed"] < now)) {
-        await docRef.set({
-            "id": data.id,
-            "last-status": data.status,
-            "data": data.data,
-            "last-accessed": now
-        });
+    if (existingDoc.exists) {
+        let existingData = existingDoc.data();
+        let oldProgress = convertProgressToInt(existingData.status, existingData.data);
+        let newProgress = convertProgressToInt(data.status, data.data);
+        if (oldProgress > newProgress) {
+            return;
+        }
     }
-    return;
+
+    await docRef.set({
+        "id": data.id,
+        "last-status": data.status,
+        "data": data.data,
+        "last-accessed": now
+    });
 }
 
+function convertProgressToInt(status: string, data: string): number {
+    switch (status) {
+        case "Started":
+            return 0;
+        case "Progress":
+            return parseInt(data);
+        case "Finished":
+            return 100;
+        default:
+            return 0;
+    }
+}
 if (process.env.dev == "TRUE") {
     let data = {
         id: "k85s3gm85rs61",

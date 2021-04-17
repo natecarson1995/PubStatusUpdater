@@ -46,7 +46,7 @@ var db = dbAdmin.firestore();
  * @param {!Object} context Metadata for the event.
  */
 exports.UpdateStatus = function (event, context) { return __awaiter(_this, void 0, void 0, function () {
-    var message, data, docRef, now, existingDoc;
+    var message, data, docRef, now, existingDoc, existingData, oldProgress, newProgress;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -61,7 +61,14 @@ exports.UpdateStatus = function (event, context) { return __awaiter(_this, void 
                 return [4 /*yield*/, docRef.get()];
             case 1:
                 existingDoc = _a.sent();
-                if (!(!existingDoc.exists || (existingDoc.exists && existingDoc.data()["last-accessed"] < now))) return [3 /*break*/, 3];
+                if (existingDoc.exists) {
+                    existingData = existingDoc.data();
+                    oldProgress = convertProgressToInt(existingData.status, existingData.data);
+                    newProgress = convertProgressToInt(data.status, data.data);
+                    if (oldProgress > newProgress) {
+                        return [2 /*return*/];
+                    }
+                }
                 return [4 /*yield*/, docRef.set({
                         "id": data.id,
                         "last-status": data.status,
@@ -70,11 +77,22 @@ exports.UpdateStatus = function (event, context) { return __awaiter(_this, void 
                     })];
             case 2:
                 _a.sent();
-                _a.label = 3;
-            case 3: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
 }); };
+function convertProgressToInt(status, data) {
+    switch (status) {
+        case "Started":
+            return 0;
+        case "Progress":
+            return parseInt(data);
+        case "Finished":
+            return 100;
+        default:
+            return 0;
+    }
+}
 if (process.env.dev == "TRUE") {
     var data = {
         id: "k85s3gm85rs61",

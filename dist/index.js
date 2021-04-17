@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+exports.__esModule = true;
 require("dotenv").config();
 var dbAdmin = require('firebase-admin');
 dbAdmin.initializeApp();
@@ -45,7 +46,7 @@ var db = dbAdmin.firestore();
  * @param {!Object} event Event payload.
  * @param {!Object} context Metadata for the event.
  */
-exports.UpdateStatus = function (event, context) { return __awaiter(_this, void 0, void 0, function () {
+exports.UpdateStatus = function (event, context) { return __awaiter(void 0, void 0, void 0, function () {
     var message, data, docRef, now, existingDoc, existingData, oldProgress, newProgress;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -77,6 +78,7 @@ exports.UpdateStatus = function (event, context) { return __awaiter(_this, void 
                     })];
             case 2:
                 _a.sent();
+                context.callback();
                 return [2 /*return*/];
         }
     });
@@ -88,7 +90,7 @@ function convertProgressToInt(status, data) {
         case "Progress":
             return parseInt(data);
         case "Finished":
-            return 100;
+            return 101;
         default:
             return 0;
     }

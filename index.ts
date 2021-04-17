@@ -1,3 +1,5 @@
+import { callbackify } from "node:util";
+
 require("dotenv").config();
 const dbAdmin = require('firebase-admin');
 dbAdmin.initializeApp();
@@ -35,6 +37,9 @@ exports.UpdateStatus = async (event, context) => {
         "data": data.data,
         "last-accessed": now
     });
+    
+    context.callback();
+    return;
 }
 
 function convertProgressToInt(status: string, data: string): number {
@@ -44,7 +49,7 @@ function convertProgressToInt(status: string, data: string): number {
         case "Progress":
             return parseInt(data);
         case "Finished":
-            return 100;
+            return 101;
         default:
             return 0;
     }

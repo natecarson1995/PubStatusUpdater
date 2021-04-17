@@ -36,21 +36,45 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var _this = this;
 require("dotenv").config();
+var dbAdmin = require('firebase-admin');
 /**
  * Triggered from a message on a Cloud Pub/Sub topic.
  *
  * @param {!Object} event Event payload.
  * @param {!Object} context Metadata for the event.
  */
-exports.CombineVideos = function (event, context) { return __awaiter(_this, void 0, void 0, function () {
-    var message, data;
+exports.UpdateStatus = function (event, context) { return __awaiter(_this, void 0, void 0, function () {
+    var message, data, db, docRef;
     return __generator(this, function (_a) {
-        message = event.data
-            ? Buffer.from(event.data, "base64").toString()
-            : null;
-        data = JSON.parse(message);
-        if (!data.id)
-            return [2 /*return*/, "Error: no video id specified"];
-        return [2 /*return*/];
+        switch (_a.label) {
+            case 0:
+                message = event.data
+                    ? Buffer.from(event.data, "base64").toString()
+                    : null;
+                data = JSON.parse(message);
+                if (!data.id)
+                    return [2 /*return*/, "Error: no video id specified"];
+                dbAdmin.initializeApp();
+                db = dbAdmin.firestore();
+                docRef = db.collection('videos').doc(data.id);
+                return [4 /*yield*/, docRef.set({
+                        "id": data.id,
+                        "last-status": data.status,
+                        "data": data.data,
+                        "last-accessed": Date.now()
+                    })];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
+        }
     });
 }); };
+if (process.env.dev == "TRUE") {
+    var data = {
+        id: "k85s3gm85rs61",
+        status: "Finished",
+        data: "Test"
+    };
+    var buff = Buffer.from(JSON.stringify(data));
+    exports.UpdateStatus({ data: buff.toString("base64") }, null);
+}

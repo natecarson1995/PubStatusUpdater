@@ -38,6 +38,7 @@ var _this = this;
 require("dotenv").config();
 var dbAdmin = require('firebase-admin');
 dbAdmin.initializeApp();
+var db = dbAdmin.firestore();
 /**
  * Triggered from a message on a Cloud Pub/Sub topic.
  *
@@ -45,7 +46,7 @@ dbAdmin.initializeApp();
  * @param {!Object} context Metadata for the event.
  */
 exports.UpdateStatus = function (event, context) { return __awaiter(_this, void 0, void 0, function () {
-    var message, data, db, docRef, now, existingDoc;
+    var message, data, docRef, now, existingDoc;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -55,7 +56,6 @@ exports.UpdateStatus = function (event, context) { return __awaiter(_this, void 
                 data = JSON.parse(message);
                 if (!data.id)
                     return [2 /*return*/, "Error: no video id specified"];
-                db = dbAdmin.firestore();
                 docRef = db.collection('videos').doc(data.id);
                 now = Date.now();
                 return [4 /*yield*/, docRef.get()];
